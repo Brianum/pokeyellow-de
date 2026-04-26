@@ -144,9 +144,6 @@ DisplayMoneyBox:
 	res BIT_NO_TEXT_DELAY, [hl]
 	ret
 
-CurrencyString:
-	db "      ¥@"
-
 DoBuySellQuitMenu:
 	ld a, [wStatusFlags5]
 	set BIT_NO_TEXT_DELAY, a
@@ -315,7 +312,7 @@ DisplayTwoOptionMenu:
 
 TwoOptionMenu_SaveScreenTiles:
 	ld de, wBuffer
-	lb bc, 5, 6
+	lb bc, 5, 7
 .loop
 	ld a, [hli]
 	ld [de], a
@@ -323,17 +320,17 @@ TwoOptionMenu_SaveScreenTiles:
 	dec c
 	jr nz, .loop
 	push bc
-	ld bc, SCREEN_WIDTH - 6
+	ld bc, SCREEN_WIDTH - 7
 	add hl, bc
 	pop bc
-	ld c, $6
+	ld c, $7
 	dec b
 	jr nz, .loop
 	ret
 
 TwoOptionMenu_RestoreScreenTiles:
 	ld de, wBuffer
-	lb bc, 5, 6
+	lb bc, 5, 7
 .loop
 	ld a, [de]
 	inc de
@@ -341,10 +338,10 @@ TwoOptionMenu_RestoreScreenTiles:
 	dec c
 	jr nz, .loop
 	push bc
-	ld bc, SCREEN_WIDTH - 6
+	ld bc, SCREEN_WIDTH - 7
 	add hl, bc
 	pop bc
-	ld c, 6
+	ld c, 7
 	dec b
 	jr nz, .loop
 	call UpdateSprites
@@ -474,9 +471,9 @@ DisplayFieldMoveMonMenu:
 INCLUDE "data/moves/field_move_names.asm"
 
 PokemonMenuEntries:
-	db   "STATS"
-	next "SWITCH"
-	next "CANCEL@"
+	db   "STATUS"
+	next "TAUSCH"
+	next "ZURÜCK@"
 
 GetMonFieldMoves:
 	ld a, [wWhichPokemon]

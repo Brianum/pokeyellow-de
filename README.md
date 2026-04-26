@@ -1,12 +1,10 @@
-# Pokémon Yellow [![Build Status][ci-badge]][ci]
+# Pokémon Gelbe Edition: Special Pikachu Edition [![Build Status][ci-badge]][ci]
 
-This is a disassembly of Pokémon Yellow.
+This is a disassembly of Pokémon Gelbe Edition: Special Pikachu Edition.
 
 It builds the following ROMs:
 
-- Pokemon Yellow (UE) [C][!].gbc  `sha1: cc7d03262ebfaf2f06772c1a480c7d9d5f4a38e1`
-- YELLMONS.GB (debug build) `sha1: d44e96eddfbdad633cbe4e6e64915e9e198974b0`
-- Dmgapse0.h08.patch `sha1: f3346a5559d52c296b8feab0cdbbfb0e250ac161`
+- Pokemon - Gelbe Edition - Special Pikachu Edition (Germany) (CGB+SGB Enhanced).gbc  `sha1: 42f3714eec6eca25200d42461ff08d57c98f6d1d`
 
 To set up the repository, see [**INSTALL.md**](INSTALL.md).
 

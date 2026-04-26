@@ -188,7 +188,10 @@ ROMX $2f
 	org $5000
 	"BG Map Attributes"
 ROMX $30
-	"bank30"
+	"Text 1 Overflow"
+	"Text 2 Overflow"
+	"Text 3 Overflow (1)"
+	"Text 3 Overflow (2)"
 ROMX $31
 	"Pikachu Cries 6"
 ROMX $32
@@ -209,7 +212,14 @@ ROMX $39
 	"Pikachu Graphics 1"
 ROMX $3A
 	"bank3A"
-; bank $3B is empty
+ROMX $3B
+	"Text 4 Overflow (1)"
+	"Text 4 Overflow (2)"
+	"Text 5 Overflow"
+	"Text 6 Overflow (1)"
+	"Text 6 Overflow (2)"
+	"Text 7 Overflow (1)"
+	"Text 7 Overflow (2)"
 ROMX $3C
 	"Pikachu PCM"
 	"Tilesets 4"
@@ -240,7 +250,7 @@ WRAM0
 	"Main Data"
 	"Current Box Data"
 	"CGB Palette Data"
-	org $df15
+	org $df1a
 	"Stack"
 VRAM $0
 	"VRAM"

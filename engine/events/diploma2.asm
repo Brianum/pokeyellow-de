@@ -21,19 +21,23 @@ DisplayDiplomaTop:
 	ld [hl], a
 
 	ld de, DiplomaText
-	hlcoord 5, 2
+	hlcoord 6, 2
 	call PlaceString
 
-	ld de, DiplomaPlayer
-	hlcoord 3, 4
+	ld de, DiplomaPlayer1
+	hlcoord 2, 4
+	call PlaceString
+
+	ld de, DiplomaPlayer2
+	hlcoord 2, 6
 	call PlaceString
 
 	ld de, wPlayerName
-	hlcoord 10, 4
+	hlcoord 9, 6
 	call PlaceString
 
 	ld de, DiplomaCongrats
-	hlcoord 2, 6
+	hlcoord 2, 8
 	call PlaceString
 
 	ld de, DiplomaGameFreak
@@ -49,17 +53,19 @@ DisplayDiplomaTop:
 	ret
 
 DiplomaText:
-	db CIRCLE_TILE_ID, "Diploma", CIRCLE_TILE_ID, "@"
+	db CIRCLE_TILE_ID, "Diplom", CIRCLE_TILE_ID, "@"
 
-DiplomaPlayer:
-	db "Player@"
+DiplomaPlayer1:
+	db "Herzlichen Glück-@"
+
+DiplomaPlayer2:
+	db "wunsch         !@"
 
 DiplomaCongrats:
-	db   "Congrats! This"
-	next "diploma certifies"
-	next "that you have"
-	next "completed your"
-	next "#DEX.@"
+	db "Du hast es ge-"
+	next "schafft, den"
+	next "#DEX zu"
+	next "vervollständigen.@"
 
 DiplomaGameFreak:
 	db "GAME FREAK@"
@@ -85,7 +91,7 @@ DisplayDiplomaBottom:
 
 	ld de, CongratulationsTiles
 	hlcoord 5, 13
-	lb bc, 1, 11
+	lb bc, 1, 10
 	call Diploma_Surfing_CopyBox
 
 	ld de, DiplomaPlayTime
@@ -120,7 +126,7 @@ DiplomaMewTiles:
 INCBIN "gfx/diploma/diploma_mew.tilemap"
 
 DiplomaPlayTime:
-	db "PLAY TIME@"
+	db "SPIELZEIT@"
 
 DiplomaDrawHorizontalBorder:
 	ld c, SCREEN_WIDTH / 2

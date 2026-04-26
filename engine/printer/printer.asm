@@ -570,7 +570,7 @@ GBPrinter_UpdateStatusMessage:
 	ld d, [hl]
 	hlcoord 1, 7
 	call PlaceString
-	hlcoord 2, 15
+	hlcoord 3, 15
 	ld de, .PressBToCancel
 	call PlaceString
 	ld a, $1
@@ -580,7 +580,7 @@ GBPrinter_UpdateStatusMessage:
 	ret
 
 .PressBToCancel:
-	db "Press B to Cancel@"
+	db "Abbrechen mit B@"
 
 .PrinterStatusMessages:
 	dw .Blank
@@ -597,36 +597,38 @@ GBPrinter_UpdateStatusMessage:
 	db   "@"
 .CheckingLink:
 	db   ""
-	next " CHECKING LINK...@"
+	next "   PRÜFE LINK...@"
 .Transmitting:
 	db   ""
-	next "  TRANSMITTING...@"
+	next "  ÜBERTRAGUNG...@"
 .Printing:
 	db   ""
-	next "    PRINTING...@"
+	next "    DRUCKEN...@"
 .Error1:
-	db   " Printer Error 1"
-	next ""
-	next "Check the Game Boy"
-	next "Printer Manual.@"
+	db   "   Druckfehler 1"
+	next " Ziehe bitte das"
+	next " Printer-Handbuch"
+	next " zur Rate!@"
 .Error2:
-	db   " Printer Error 2"
-	next ""
-	next "Check the Game Boy"
-	next "Printer Manual.@"
+	db   "   Druckfehler 2"
+	next " Ziehe bitte das"
+	next " Printer-Handbuch"
+	next " zu Rate!@"
 .Error3:
-	db   " Printer Error 3"
-	next ""
-	next "Check the Game Boy"
-	next "Printer Manual.@"
+	db   "   Druckfehler 3"
+	next " Ziehe bitte das"
+	next " Printer-Handbuch"
+	next " zur Rate!@"
 .Error4:
-	db   " Printer Error 4"
-	next ""
-	next "Check the Game Boy"
-	next "Printer Manual.@"
+	db   "   Druckfehler 4"
+	next " Ziehe bitte das"
+	next " Printer-Handbuch"
+	next " zur Rate!@"
 .WrongDevice:
-	db   "This is not the"
-	next "Game Boy Printer!@"
+	db   "   Druckfehler 5"
+	next " Es ist kein"
+	next " Game Boy Printer"
+	next " angeschlossen!@"
 
 Printer_PrepareSurfingMinigameHighScoreTileMap::
 	call GBPalWhiteOutWithDelay3
@@ -663,12 +665,6 @@ Printer_PrepareSurfingMinigameHighScoreTileMap::
 	ld de, .PikachusBeachString
 	hlcoord 3, 2
 	call PlaceString
-	ld de, .HiScoreString
-	hlcoord 9, 4
-	call PlaceString
-	ld de, .PointsString
-	hlcoord 12, 6
-	call PlaceString
 	ld de, wPlayerName
 	ld hl, wPlayerName
 	ld bc, 0
@@ -683,8 +679,14 @@ Printer_PrepareSurfingMinigameHighScoreTileMap::
 	xor a
 .got_name_length
 	ld c, a
-	hlcoord 2, 4
+	hlcoord 3, 4
 	add hl, bc
+	call PlaceString
+	ld de, .HiScoreString
+	hlcoord 10, 4
+	call PlaceString
+	ld de, .PointsString
+	hlcoord 12, 6
 	call PlaceString
 	call CopySurfingMinigameScore
 	ld b, SET_PAL_GENERIC
@@ -725,11 +727,11 @@ INCBIN "gfx/surfing_pikachu/high_score_1.tilemap"
 INCBIN "gfx/surfing_pikachu/high_score_2.tilemap"
 
 .PikachusBeachString:
-	db "Pikachu's Beach@"
+	db "Pikachus Strand@"
 .HiScoreString:
-	db "'s Hi-Score@"
+	db "s Rekord@"
 .PointsString:
-	db "Points@"
+	db "Punkte@"
 
 Diploma_Surfing_CopyBox:
 .y
@@ -809,7 +811,7 @@ PrintPCBox_DrawPage1:
 	call PrintPCBox_PlaceBoxMonInfo
 	ret
 
-.PokemonListString: db "POKéMON LIST@"
+.PokemonListString: db "POKéMON-LISTE@"
 .BoxString: db "BOX@"
 
 PrintPCBox_DrawPage2:

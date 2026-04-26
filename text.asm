@@ -25,6 +25,10 @@ INCLUDE "text/SilphCo2F.asm"
 INCLUDE "text/SilphCo3F.asm"
 INCLUDE "text/SilphCo4F.asm"
 INCLUDE "text/SilphCo5F.asm"
+
+
+SECTION "Text 1 Overflow", ROMX
+
 INCLUDE "text/SilphCo6F.asm"
 INCLUDE "text/SilphCo7F.asm"
 INCLUDE "text/SilphCo8F.asm"
@@ -100,6 +104,10 @@ INCLUDE "text/BillsHouse.asm"
 INCLUDE "text/Route1.asm"
 INCLUDE "text/Route2.asm"
 INCLUDE "text/Route3.asm"
+
+
+SECTION "Text 3 Overflow (2)", ROMX
+
 INCLUDE "text/Route4.asm"
 INCLUDE "text/Route5.asm"
 INCLUDE "text/Route6.asm"
@@ -124,6 +132,10 @@ INCLUDE "text/Route19.asm"
 INCLUDE "text/Route20.asm"
 INCLUDE "text/Route21.asm"
 INCLUDE "text/Route22.asm"
+
+
+SECTION "Text 4 Overflow (2)", ROMX
+
 INCLUDE "text/Route23.asm"
 INCLUDE "text/Route24.asm"
 INCLUDE "text/Route25.asm"
@@ -151,6 +163,10 @@ INCLUDE "text/PewterNidoranHouse.asm"
 INCLUDE "text/PewterMart.asm"
 INCLUDE "text/PewterSpeechHouse.asm"
 INCLUDE "text/PewterPokecenter.asm"
+
+
+SECTION "Text 5 Overflow", ROMX
+
 INCLUDE "text/CeruleanTrashedHouse.asm"
 INCLUDE "text/CeruleanMelaniesHouse.asm"
 INCLUDE "text/CeruleanPokecenter.asm"
@@ -197,6 +213,10 @@ INCLUDE "text/CeladonMansionRoof.asm"
 INCLUDE "text/CeladonMansionRoofHouse.asm"
 INCLUDE "text/CeladonPokecenter.asm"
 INCLUDE "text/CeladonGym.asm"
+
+
+SECTION "Text 6 Overflow (2)", ROMX
+
 INCLUDE "text/GameCorner.asm"
 
 
@@ -229,6 +249,10 @@ INCLUDE "text/CopycatsHouse1F.asm"
 INCLUDE "text/CopycatsHouse2F.asm"
 INCLUDE "text/FightingDojo.asm"
 INCLUDE "text/SaffronGym.asm"
+
+
+SECTION "Text 7 Overflow (2)", ROMX
+
 INCLUDE "text/SaffronPidgeyHouse.asm"
 INCLUDE "text/SaffronMart.asm"
 INCLUDE "text/SilphCo1F.asm"
