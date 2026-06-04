@@ -193,8 +193,8 @@ PokedexEntryPointers:
 	assert_table_length NUM_POKEMON_INDEXES
 
 ; string: species name
-; height in feet, inches
-; weight in tenths of a pound
+; height in decimetres
+; weight in centigrams
 ; text entry
 
 BulbasaurDexEntry:
