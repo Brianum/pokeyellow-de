@@ -40,7 +40,7 @@ SilphCo11F_SetCardKeyDoorYScript:
 	pop hl
 .loop_check_doors
 	ld a, [hli]
-	cp $ff
+	cp -1
 	jr z, .exit_loop
 	push hl
 	ld hl, hUnlockedSilphCoDoors
@@ -104,14 +104,14 @@ IF DEF(_DEBUG)
 	ret nz
 ENDC
 	CheckEvent EVENT_BEAT_SILPH_CO_11F_JESSIE_JAMES
-	call z, SilphCo11FScript_6229c
+	call z, SilphCo11FEncounterJessieJamesScript
 	CheckEvent EVENT_782
 	ret nz
 	CheckEvent EVENT_BEAT_SILPH_CO_GIOVANNI
-	call z, SilphCo11FScript_621c5
+	call z, SilphCo11FBattleGiovanniScript
 	ret
 
-SilphCo11FScript_621c5:
+SilphCo11FBattleGiovanniScript:
 	ld hl, .PlayerCoordsArray
 	call ArePlayerCoordsInArray
 	jp nc, CheckFightingMapTrainers
@@ -144,7 +144,7 @@ SilphCo11FScript_621c5:
 	db NPC_MOVEMENT_DOWN
 	db -1 ; end
 
-SilphCo11FScript_621ff:
+SilphCo11FSetPlayerDirFacingScript:
 	ld [wPlayerMovingDirection], a
 	ld a, b
 	ld [wSprite03StateData1FacingDirection], a
@@ -154,7 +154,7 @@ SilphCo11FScript_621ff:
 
 SilphCo11FGiovanniAfterBattleScript:
 	ld a, [wIsInBattle]
-	cp $ff
+	cp LOST_BATTLE
 	jp z, SilphCo11FResetCurScript
 	ld a, [wSavedCoordIndex]
 	cp 1 ; index of second, upper-right entry in SilphCo11FDefaultScript.PlayerCoordsArray
@@ -166,7 +166,7 @@ SilphCo11FGiovanniAfterBattleScript:
 	ld a, PLAYER_DIR_UP
 	ld b, SPRITE_FACING_DOWN
 .continue
-	call SilphCo11FScript_621ff
+	call SilphCo11FSetPlayerDirFacingScript
 	ld a, PAD_CTRL_PAD
 	ld [wJoyIgnore], a
 	ld a, TEXT_SILPHCO11F_GIOVANNI_YOU_RUINED_OUR_PLANS
@@ -199,15 +199,15 @@ SilphCo11FGiovanniStartBattleScript:
 	ld a, PLAYER_DIR_UP
 	ld b, SPRITE_FACING_DOWN
 .continue
-	call SilphCo11FScript_621ff
+	call SilphCo11FSetPlayerDirFacingScript
 	call Delay3
 	xor a
 	ld [wJoyIgnore], a
 	ld hl, wStatusFlags3
 	set BIT_TALKED_TO_TRAINER, [hl]
 	set BIT_PRINT_END_BATTLE_TEXT, [hl]
-	ld hl, SilphCo10FGiovanniILostAgainText
-	ld de, SilphCo10FGiovanniILostAgainText
+	ld hl, SilphCo11FGiovanniILostAgainText
+	ld de, SilphCo11FGiovanniILostAgainText
 	call SaveEndBattleTextPointers
 	ldh a, [hSpriteIndex]
 	ld [wSpriteIndex], a
@@ -216,24 +216,24 @@ SilphCo11FGiovanniStartBattleScript:
 	ld a, SCRIPT_SILPHCO11F_GIOVANNI_AFTER_BATTLE
 	jp SilphCo11FSetCurScript
 
-SilphCo11FScript_6229c:
+SilphCo11FEncounterJessieJamesScript:
 	ld a, [wYCoord]
 	cp $3
 	ret nz
 	ld a, [wXCoord]
 	cp $4
 	ret nc
-	ResetEvents EVENT_780, EVENT_781
+	ResetEvents EVENT_SILPH_CO_11_JESSIE_JAMES_ON_MIDDLE, EVENT_SILPH_CO_11_JESSIE_JAMES_ON_LEFT
 	ld a, [wXCoord]
 	cp $3
-	jr z, .asm_622c3
-	SetEventReuseHL EVENT_780
+	jr z, .got_hallway_column
+	SetEventReuseHL EVENT_SILPH_CO_11_JESSIE_JAMES_ON_MIDDLE
 	ld a, [wXCoord]
 	cp $2
-	jr z, .asm_622c3
-	ResetEventReuseHL EVENT_780
-	SetEventReuseHL EVENT_781
-.asm_622c3
+	jr z, .got_hallway_column
+	ResetEventReuseHL EVENT_SILPH_CO_11_JESSIE_JAMES_ON_MIDDLE
+	SetEventReuseHL EVENT_SILPH_CO_11_JESSIE_JAMES_ON_LEFT
+.got_hallway_column
 	call StopAllMusic
 	ld c, BANK(Music_MeetJessieJames)
 	ld a, MUSIC_MEET_JESSIE_JAMES
@@ -256,63 +256,63 @@ SilphCo11FScript_6229c:
 	call SilphCo11FSetCurScript
 	ret
 
-SilphCo11FMovementData_622f5:
-	db $5
-	db $5
-	db $5
-	db $5
-	db $5
-	db $ff
+SilphCo11FJamesEncounterRightMovementData:
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db -1 ; end
 
-SilphCo11FMovementData_622fb:
-	db $5
-	db $5
-	db $5
-	db $5
-	db $ff
+SilphCo11FJessieEncounterRightMovementData:
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db -1 ; end
 
-SilphCo11FMovementData_62300:
-	db $5
-	db $5
-	db $5
-	db $5
-	db $ff
+SilphCo11FJamesEncounterMiddleMovementData:
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db -1 ; end
 
-SilphCo11FMovementData_62305:
-	db $5
-	db $5
-	db $5
-	db $5
-	db $5
-	db $ff
+SilphCo11FJessieEncounterMiddleMovementData:
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db -1 ; end
 
-SilphCo11FMovementData_6230b:
-	db $5
-	db $5
-	db $6
-	db $5
-	db $5
-	db $ff
+SilphCo11FJamesEncounterLeftMovementData:
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_LEFT_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db -1 ; end
 
-SilphCo11FMovementData_62311:
-	db $5
-	db $5
-	db $5
-	db $6
-	db $5
-	db $5
-	db $ff
+SilphCo11FJessieEncounterLeftMovementData:
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_LEFT_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db NPC_MOVEMENT_UP_FAST
+	db -1 ; end
 
 SilphCo11FScript5:
-	ld de, SilphCo11FMovementData_622f5
-	CheckEitherEventSet EVENT_780, EVENT_781
+	ld de, SilphCo11FJamesEncounterRightMovementData
+	CheckEitherEventSet EVENT_SILPH_CO_11_JESSIE_JAMES_ON_MIDDLE, EVENT_SILPH_CO_11_JESSIE_JAMES_ON_LEFT
 	and a
-	jr z, .asm_6232d
-	ld de, SilphCo11FMovementData_62300
-	cp $1
-	jr z, .asm_6232d
-	ld de, SilphCo11FMovementData_6230b
-.asm_6232d
+	jr z, .got_movement_data
+	ld de, SilphCo11FJamesEncounterMiddleMovementData
+	cp 1 << (EVENT_SILPH_CO_11_JESSIE_JAMES_ON_MIDDLE % 8)
+	jr z, .got_movement_data
+	ld de, SilphCo11FJamesEncounterLeftMovementData
+.got_movement_data
 	ld a, SILPHCO11F_JAMES
 	ldh [hSpriteIndex], a
 	call MoveSprite
@@ -333,24 +333,24 @@ SilphCo11FScript7:
 	ld [wSprite04StateData1MovementStatus], a
 	ld hl, wSprite04StateData1FacingDirection
 	ld [hl], SPRITE_FACING_RIGHT
-	CheckEitherEventSet EVENT_780, EVENT_781
+	CheckEitherEventSet EVENT_SILPH_CO_11_JESSIE_JAMES_ON_MIDDLE, EVENT_SILPH_CO_11_JESSIE_JAMES_ON_LEFT
 	and a
-	jr z, .asm_6235e
+	jr z, .got_facing
 	ld [hl], SPRITE_FACING_UP
-.asm_6235e
+.got_facing
 	call Delay3
 	ld a, PAD_SELECT | PAD_START | PAD_CTRL_PAD
 	ld [wJoyIgnore], a
 SilphCo11FScript8:
-	ld de, SilphCo11FMovementData_622fb
-	CheckEitherEventSet EVENT_780, EVENT_781
+	ld de, SilphCo11FJessieEncounterRightMovementData
+	CheckEitherEventSet EVENT_SILPH_CO_11_JESSIE_JAMES_ON_MIDDLE, EVENT_SILPH_CO_11_JESSIE_JAMES_ON_LEFT
 	and a
-	jr z, .asm_6237b
-	ld de, SilphCo11FMovementData_62305
-	cp $1
-	jr z, .asm_6237b
-	ld de, SilphCo11FMovementData_62311
-.asm_6237b
+	jr z, .got_movement_data
+	ld de, SilphCo11FJessieEncounterMiddleMovementData
+	cp 1 << (EVENT_SILPH_CO_11_JESSIE_JAMES_ON_MIDDLE % 8)
+	jr z, .got_movement_data
+	ld de, SilphCo11FJessieEncounterLeftMovementData
+.got_movement_data
 	ld a, SILPHCO11F_JESSIE
 	ldh [hSpriteIndex], a
 	call MoveSprite
@@ -373,11 +373,11 @@ SilphCo11FScript10:
 	ld [wSprite06StateData1MovementStatus], a
 	ld hl, wSprite06StateData1FacingDirection
 	ld [hl], SPRITE_FACING_UP
-	CheckEitherEventSet EVENT_780, EVENT_781
+	CheckEitherEventSet EVENT_SILPH_CO_11_JESSIE_JAMES_ON_MIDDLE, EVENT_SILPH_CO_11_JESSIE_JAMES_ON_LEFT
 	and a
-	jr z, .asm_623b1
+	jr z, .got_facing
 	ld [hl], SPRITE_FACING_LEFT
-.asm_623b1
+.got_facing
 	call Delay3
 	ld a, TEXT_SILPHCO11F_TEXT9
 	ldh [hTextID], a
@@ -386,8 +386,8 @@ SilphCo11FScript11:
 	ld hl, wStatusFlags3
 	set BIT_TALKED_TO_TRAINER, [hl]
 	set BIT_PRINT_END_BATTLE_TEXT, [hl]
-	ld hl, SilphCo11FText_624c2
-	ld de, SilphCo11FText_624c2
+	ld hl, SilphCoJessieJamesText3
+	ld de, SilphCoJessieJamesText3
 	call SaveEndBattleTextPointers
 	ld a, OPP_ROCKET
 	ld [wCurOpponent], a
@@ -404,7 +404,7 @@ SilphCo11FScript12:
 	ld a, PAD_BUTTONS | PAD_CTRL_PAD
 	ld [wJoyIgnore], a
 	ld a, [wIsInBattle]
-	cp $ff
+	cp LOST_BATTLE
 	jp z, SilphCo11FResetCurScript
 	ld a, $2
 	ld [wSprite04StateData1MovementStatus], a
@@ -479,8 +479,8 @@ SilphCo11F_TextPointers:
 	dw_const SilphCo11FJessieJamesText,               TEXT_SILPHCO11F_JESSIE
 	dw_const SilphCo11FGiovanniYouRuinedOurPlansText, TEXT_SILPHCO11F_GIOVANNI_YOU_RUINED_OUR_PLANS
 	dw_const SilphCo11FJessieJamesText,               TEXT_SILPHCO11F_TEXT8
-	dw_const SilphCo11FText9,                         TEXT_SILPHCO11F_TEXT9
-	dw_const SilphCo11FText10,                        TEXT_SILPHCO11F_TEXT10
+	dw_const SilphCoJessieJamesText2,                 TEXT_SILPHCO11F_TEXT9
+	dw_const SilphCoJessieJamesText4,                 TEXT_SILPHCO11F_TEXT10
 
 SilphCo11TrainerHeaders:
 	def_trainers 5
@@ -493,7 +493,7 @@ SilphCo11FJessieJamesText:
 	text_asm
 	ld c, 10
 	call DelayFrames
-	ld a, $4
+	ld a, PLAYER_DIR_DOWN
 	ld [wPlayerMovingDirection], a
 	ld a, $0
 	ld [wEmotionBubbleSpriteIndex], a
@@ -504,15 +504,15 @@ SilphCo11FJessieJamesText:
 	call DelayFrames
 	jp TextScriptEnd
 
-SilphCo11FText9:
+SilphCoJessieJamesText2:
 	text_far _SilphCoJessieJamesText2
 	text_end
 
-SilphCo11FText_624c2:
+SilphCoJessieJamesText3:
 	text_far _SilphCoJessieJamesText3
 	text_end
 
-SilphCo11FText10:
+SilphCoJessieJamesText4:
 	text_far _SilphCoJessieJamesText4
 	text_asm
 	ld c, 64
@@ -567,8 +567,8 @@ SilphCo11FGiovanniText:
 	text_far _SilphCo11FGiovanniText
 	text_end
 
-SilphCo10FGiovanniILostAgainText:
-	text_far _SilphCo10FGiovanniILostAgainText
+SilphCo11FGiovanniILostAgainText:
+	text_far _SilphCo11FGiovanniILostAgainText
 	text_end
 
 SilphCo11FGiovanniYouRuinedOurPlansText:

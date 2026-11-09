@@ -33,22 +33,22 @@ IF DEF(_DEBUG)
 	ret nz
 ENDC
 	CheckEvent EVENT_BEAT_POKEMONTOWER_7_JESSIE_JAMES
-	call z, PokemonTower7FScript_60d2a
+	call z, PokemonTower7FEncounterJessieJamesScript
 	ret
 
-PokemonTower7FScript_60d2a:
+PokemonTower7FEncounterJessieJamesScript:
 	ld a, [wYCoord]
-	cp $c
+	cp 12
 	ret nz
 	ResetEvent EVENT_POKEMONTOWER_7_JESSIE_JAMES_ON_LEFT
 	ld a, [wXCoord]
-	cp $a
-	jr z, .asm_60d47
-	ld a, [wXCoord] ; why?
-	cp $b
+	cp 10
+	jr z, .got_side
+	ld a, [wXCoord] ; redundant
+	cp 11
 	ret nz
 	SetEvent EVENT_POKEMONTOWER_7_JESSIE_JAMES_ON_LEFT
-.asm_60d47
+.got_side
 	call StopAllMusic
 	ld c, BANK(Music_MeetJessieJames)
 	ld a, MUSIC_MEET_JESSIE_JAMES
@@ -72,20 +72,20 @@ PokemonTower7FScript_60d2a:
 	call PokemonTower7FSetScript
 	ret
 
-PokemonTower7FMovementData_60d7a:
-	db $4
-PokemonTower7FMovementData_60d7b:
-	db $4
-	db $4
-	db $4
-	db $FF
+PokemonTower7FJessieJamesEncounterLeftMovementData:
+	db NPC_MOVEMENT_DOWN_FAST
+PokemonTower7FJessieJamesEncounterRightMovementData:
+	db NPC_MOVEMENT_DOWN_FAST
+	db NPC_MOVEMENT_DOWN_FAST
+	db NPC_MOVEMENT_DOWN_FAST
+	db -1 ; end
 
 PokemonTower7FScript1:
-	ld de, PokemonTower7FMovementData_60d7b
+	ld de, PokemonTower7FJessieJamesEncounterRightMovementData
 	CheckEvent EVENT_POKEMONTOWER_7_JESSIE_JAMES_ON_LEFT
-	jr z, .asm_60d8c
-	ld de, PokemonTower7FMovementData_60d7a
-.asm_60d8c
+	jr z, .got_side
+	ld de, PokemonTower7FJessieJamesEncounterLeftMovementData
+.got_side
 	ld a, POKEMONTOWER7F_JESSIE
 	ldh [hSpriteIndex], a
 	call MoveSprite
@@ -105,18 +105,18 @@ PokemonTower7FScript3:
 	ld a, SPRITE_FACING_DOWN
 	ld [wSprite01StateData1FacingDirection], a
 	CheckEvent EVENT_POKEMONTOWER_7_JESSIE_JAMES_ON_LEFT
-	jr z, .asm_60dba
+	jr z, .got_facing
 	ld a, SPRITE_FACING_RIGHT
 	ld [wSprite01StateData1FacingDirection], a
-.asm_60dba
+.got_facing
 	ld a, $2
 	ld [wSprite01StateData1MovementStatus], a
 PokemonTower7FScript4:
-	ld de, PokemonTower7FMovementData_60d7a
+	ld de, PokemonTower7FJessieJamesEncounterLeftMovementData
 	CheckEvent EVENT_POKEMONTOWER_7_JESSIE_JAMES_ON_LEFT
-	jr z, .asm_60dcc
-	ld de, PokemonTower7FMovementData_60d7b
-.asm_60dcc
+	jr z, .got_side
+	ld de, PokemonTower7FJessieJamesEncounterRightMovementData
+.got_side
 	ld a, POKEMONTOWER7F_JAMES
 	ldh [hSpriteIndex], a
 	call MoveSprite
@@ -138,10 +138,10 @@ PokemonTower7FScript6:
 	ld a, SPRITE_FACING_LEFT
 	ld [wSprite02StateData1FacingDirection], a
 	CheckEvent EVENT_POKEMONTOWER_7_JESSIE_JAMES_ON_LEFT
-	jr z, .asm_60dff
+	jr z, .got_facing
 	ld a, SPRITE_FACING_DOWN
 	ld [wSprite02StateData1FacingDirection], a
-.asm_60dff
+.got_facing
 	call Delay3
 	ld a, PAD_SELECT | PAD_START | PAD_CTRL_PAD
 	ld [wJoyIgnore], a
@@ -170,7 +170,7 @@ PokemonTower7FScript8:
 	ld a, PAD_BUTTONS | PAD_CTRL_PAD
 	ld [wJoyIgnore], a
 	ld a, [wIsInBattle]
-	cp $ff
+	cp LOST_BATTLE
 	jp z, PokemonTower7FSetDefaultScript
 	ld a, $2
 	ld [wSprite01StateData1MovementStatus], a

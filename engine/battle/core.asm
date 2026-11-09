@@ -1812,9 +1812,9 @@ SendOutMon:
 	callfar StarterPikachuBattleEntranceAnimation
 	callfar IsPlayerPikachuAsleepInParty
 	ldpikacry e, PikachuCry37
-	jr c, .asm_3cd81
+	jr c, .gotPikaCry
 	ldpikacry e, PikachuCry11
-.asm_3cd81
+.gotPikaCry
 	callfar PlayPikachuSoundClip
 	jr .done
 .playRegularCry
@@ -2690,10 +2690,10 @@ SelectMenuItem:
 	call PlaceString
 	jr .select
 .battleselect
-	; Hide move swap cursor in TestBattle.
+	; Hide move swap cursor in FightDebugMenu.
 	ld a, [wStatusFlags7]
 	bit BIT_TEST_BATTLE, a
-	; This causes PrintMenuItem to not run in TestBattle.
+	; This causes PrintMenuItem to not run in FightDebugMenu.
 	; MoveSelectionMenu still draws part of its window, an issue
 	; which did not seem to exist in the Japanese versions.
 	jr nz, .select
@@ -2720,11 +2720,11 @@ SelectMenuItem:
 	jp nz, SwapMovesInMenu
 IF DEF(_DEBUG)
 	bit B_PAD_START, a
-	jp nz, Func_3d4f5
+	jp nz, TestBattle_PressedStart
 	bit B_PAD_RIGHT, a
-	jp nz, Func_3d529
+	jp nz, TestBattle_IncrementSelectedMove
 	bit B_PAD_LEFT, a
-	jp nz, Func_3d523
+	jp nz, TestBattle_DecrementSelectedMove
 ENDC
 	bit B_PAD_B, a
 	push af
@@ -2822,18 +2822,18 @@ SelectMenuItem_CursorDown:
 	ld [wCurrentMenuItem], a
 	jp SelectMenuItem
 
-Func_3d4f5:
+TestBattle_PressedStart:
 IF DEF(_DEBUG)
 	ASSERT B_PAD_START == BIT_TRAINER_BATTLE
 ENDC
 	bit BIT_TRAINER_BATTLE, a
 	ld a, $0
-	jr nz, .asm_3d4fd
+	jr nz, .gotWhoseTurn
 	ld a, $1
-.asm_3d4fd
+.gotWhoseTurn
 	ldh [hWhoseTurn], a
 	call LoadScreenTilesFromBuffer1
-	call Func_3d536
+	call ShowTestBattlePlayerSelectedMove
 	ld a, [wTestBattlePlayerSelectedMove]
 	and a
 	jp z, MoveSelectionMenu
@@ -2841,22 +2841,22 @@ ENDC
 	xor a
 	ld [wAnimationType], a
 	predef MoveAnimation
-	callfar Func_78e98
+	callfar SaveScreenTilesAndTransferBGMap
 	jp MoveSelectionMenu
 
-Func_3d523:
+TestBattle_DecrementSelectedMove:
 	ld a, [wTestBattlePlayerSelectedMove]
 	dec a
-	jr asm_3d52d
-Func_3d529:
+	jr _TestBattle_SetSelectedMove
+TestBattle_IncrementSelectedMove:
 	ld a, [wTestBattlePlayerSelectedMove]
 	inc a
-asm_3d52d:
+_TestBattle_SetSelectedMove:
 	ld [wTestBattlePlayerSelectedMove], a
-	call Func_3d536
+	call ShowTestBattlePlayerSelectedMove
 	jp MoveSelectionMenu
 
-Func_3d536:
+ShowTestBattlePlayerSelectedMove:
 	hlcoord 10, 16
 	lb bc, 2, 10
 	call ClearScreenArea
@@ -2928,7 +2928,7 @@ SwapMovesInMenu:
 IF DEF(_DEBUG)
 	ld a, [wStatusFlags7]
 	bit BIT_TEST_BATTLE, a
-	jp nz, Func_3d4f5
+	jp nz, TestBattle_PressedStart
 ENDC
 	ld a, [wPlayerBattleStatus3]
 	bit TRANSFORMED, a
@@ -3733,7 +3733,7 @@ CheckPlayerStatusConditions:
 	ld [wPlayerNumAttacksLeft], a
 	ld hl, GetPlayerAnimationType ; skip damage calculation (deal damage equal to last hit),
 	                              ; DecrementPP and MoveHitTest
-	jp nz, .returnToHL  ; redundant leftover code, the case wEnemyNumAttacksLeft == 0
+	jp nz, .returnToHL  ; redundant leftover code, the case wPlayerNumAttacksLeft == 0
 						; is handled within CheckNumAttacksLeft
 	jp .returnToHL
 
@@ -5059,7 +5059,7 @@ AttackSubstitute:
 	ldh a, [hWhoseTurn]
 	xor $01
 	ldh [hWhoseTurn], a
-	callfar Func_79929 ; animate the substitute breaking
+	callfar AnimateSubstituteBreaking
 ; flip the turn back to the way it was
 	ldh a, [hWhoseTurn]
 	xor $01
@@ -6149,7 +6149,7 @@ GetCurrentMove:
 	jr .selected
 .player
 	ld de, wPlayerMoveNum
-	; Apply InitBattleVariables to TestBattle.
+	; Apply InitBattleVariables to FightDebugMenu.
 	ld a, [wStatusFlags7]
 	bit BIT_TEST_BATTLE, a
 	ld a, [wTestBattlePlayerSelectedMove]
@@ -6187,7 +6187,7 @@ LoadEnemyMonData:
 	ld b, [hl]
 	jr nz, .storeDVs
 	ld a, [wIsInBattle]
-	cp $2 ; is it a trainer battle?
+	cp TRAINER_BATTLE
 ; fixed DVs for trainer mon
 	ld a, ATKDEFDV_TRAINER
 	ld b, SPDSPCDV_TRAINER
@@ -6210,7 +6210,7 @@ LoadEnemyMonData:
 	call CalcStats
 	pop hl
 	ld a, [wIsInBattle]
-	cp $2 ; is it a trainer battle?
+	cp TRAINER_BATTLE
 	jr z, .copyHPAndStatusFromPartyData
 	ld a, [wEnemyBattleStatus3]
 	bit TRANSFORMED, a ; is enemy mon transformed?
@@ -6253,7 +6253,7 @@ LoadEnemyMonData:
 	ld [de], a
 	inc de
 	ld a, [wIsInBattle]
-	cp $2 ; is it a trainer battle?
+	cp TRAINER_BATTLE
 	jr nz, .copyStandardMoves
 ; if it's a trainer battle, copy moves from enemy party data
 	ld hl, wEnemyMon1Moves
@@ -6822,5 +6822,5 @@ PlayMoveAnimation:
 	ld [wAnimationID], a
 	call Delay3
 	predef MoveAnimation
-	callfar Func_78e98
+	callfar SaveScreenTilesAndTransferBGMap
 	ret

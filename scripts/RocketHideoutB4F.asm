@@ -43,7 +43,7 @@ RocketHideoutB4F_ScriptPointers:
 
 RocketHideoutB4FBeatGiovanniScript:
 	ld a, [wIsInBattle]
-	cp $ff
+	cp LOST_BATTLE
 	jp z, RocketHideoutB4FResetScripts
 	ld a, PAD_SELECT | PAD_START | PAD_CTRL_PAD
 	ld [wJoyIgnore], a
@@ -75,24 +75,24 @@ IF DEF(_DEBUG)
 	ret nz
 ENDC
 	CheckEvent EVENT_BEAT_ROCKET_HIDEOUT_4_JESSIE_JAMES
-	call z, RocketHideoutB4FScript_455a5
+	call z, RocketHideoutB4FEncounterJessieJamesScript
 	CheckEvent EVENT_BEAT_ROCKET_HIDEOUT_4_TRAINER_2
 	call z, CheckFightingMapTrainers
 	ret
 
-RocketHideoutB4FScript_455a5:
+RocketHideoutB4FEncounterJessieJamesScript:
 	ld a, [wYCoord]
-	cp $e
+	cp 14
 	ret nz
 	ResetEvent EVENT_ROCKET_HIDEOUT_4_JESSIE_JAMES_ON_LEFT
 	ld a, [wXCoord]
-	cp $18
-	jr z, .asm_455c2
+	cp 24
+	jr z, .got_side
 	ld a, [wXCoord]
-	cp $19
+	cp 25
 	ret nz
 	SetEvent EVENT_ROCKET_HIDEOUT_4_JESSIE_JAMES_ON_LEFT
-.asm_455c2
+.got_side
 	xor a
 	ldh [hJoyHeld], a
 	ld a, PAD_SELECT | PAD_START | PAD_CTRL_PAD
@@ -122,20 +122,20 @@ RocketHideoutB4FScript_455a5:
 	call RocketHideoutB4FSetScript
 	ret
 
-RocketHideoutB4FJessieJamesMovementData_45605:
-	db $4
-RocketHideoutB4FJessieJamesMovementData_45606:
-	db $4
-	db $4
-	db $4
-	db $ff
+RocketHideoutB4FJessieJamesEncounterRightMovementData:
+	db NPC_MOVEMENT_DOWN_FAST
+RocketHideoutB4FJessieJamesEncounterLeftMovementData:
+	db NPC_MOVEMENT_DOWN_FAST
+	db NPC_MOVEMENT_DOWN_FAST
+	db NPC_MOVEMENT_DOWN_FAST
+	db -1 ; end
 
 RocketHideoutB4FScript4:
-	ld de, RocketHideoutB4FJessieJamesMovementData_45605
+	ld de, RocketHideoutB4FJessieJamesEncounterRightMovementData
 	CheckEvent EVENT_ROCKET_HIDEOUT_4_JESSIE_JAMES_ON_LEFT
-	jr z, .asm_45617
-	ld de, RocketHideoutB4FJessieJamesMovementData_45606
-.asm_45617
+	jr z, .got_side
+	ld de, RocketHideoutB4FJessieJamesEncounterLeftMovementData
+.got_side
 	ld a, ROCKETHIDEOUTB4F_JAMES
 	ldh [hSpriteIndex], a
 	call MoveSprite
@@ -157,19 +157,19 @@ RocketHideoutB4FScript6:
 	ld a, SPRITE_FACING_LEFT
 	ld [wSprite02StateData1FacingDirection], a
 	CheckEvent EVENT_ROCKET_HIDEOUT_4_JESSIE_JAMES_ON_LEFT
-	jr z, .asm_4564a
+	jr z, .got_facing
 	ld a, SPRITE_FACING_DOWN
 	ld [wSprite02StateData1FacingDirection], a
-.asm_4564a
+.got_facing
 	call Delay3
 	ld a, PAD_SELECT | PAD_START | PAD_CTRL_PAD
 	ld [wJoyIgnore], a
 RocketHideoutB4FScript7:
-	ld de, RocketHideoutB4FJessieJamesMovementData_45606
+	ld de, RocketHideoutB4FJessieJamesEncounterLeftMovementData
 	CheckEvent EVENT_ROCKET_HIDEOUT_4_JESSIE_JAMES_ON_LEFT
-	jr z, .asm_4565f
-	ld de, RocketHideoutB4FJessieJamesMovementData_45605
-.asm_4565f
+	jr z, .got_side
+	ld de, RocketHideoutB4FJessieJamesEncounterRightMovementData
+.got_side
 	ld a, ROCKETHIDEOUTB4F_JESSIE
 	ldh [hSpriteIndex], a
 	call MoveSprite
@@ -193,10 +193,10 @@ RocketHideoutB4FScript9:
 	ld a, SPRITE_FACING_DOWN
 	ld [wSprite03StateData1FacingDirection], a
 	CheckEvent EVENT_ROCKET_HIDEOUT_4_JESSIE_JAMES_ON_LEFT
-	jr z, .asm_45697
+	jr z, .got_facing
 	ld a, SPRITE_FACING_RIGHT
 	ld [wSprite03StateData1FacingDirection], a
-.asm_45697
+.got_facing
 	call Delay3
 	ld a, TEXT_ROCKETHIDEOUTB4F_TEXT12
 	ldh [hTextID], a
@@ -224,7 +224,7 @@ RocketHideoutB4FScript11:
 	ld a, PAD_BUTTONS | PAD_CTRL_PAD
 	ld [wJoyIgnore], a
 	ld a, [wIsInBattle]
-	cp $ff
+	cp LOST_BATTLE
 	jp z, RocketHideoutB4FResetScripts
 	ld a, $2
 	ld [wSprite02StateData1MovementStatus], a
@@ -318,7 +318,7 @@ RocketHideoutB4FText11:
 	text_asm
 	ld c, 10
 	call DelayFrames
-	ld a, $8
+	ld a, PLAYER_DIR_UP
 	ld [wPlayerMovingDirection], a
 	ld a, $0
 	ld [wEmotionBubbleSpriteIndex], a

@@ -379,7 +379,7 @@ INCLUDE "audio/sfx/heal_hp_4.asm"
 INCLUDE "audio/sfx/tink_4.asm"
 INCLUDE "audio/sfx/surfing_jump.asm"
 INCLUDE "audio/sfx/surfing_flip.asm"
-INCLUDE "audio/sfx/unknown_802cc.asm"
+INCLUDE "audio/sfx/surfing_unused.asm"
 INCLUDE "audio/sfx/surfing_land.asm"
 INCLUDE "audio/sfx/surfing_crash.asm"
 INCLUDE "audio/sfx/get_item2_4_2.asm"
@@ -535,6 +535,12 @@ SECTION "Music 4", ROMX
 INCLUDE "audio/music/surfingpikachu.asm"
 INCLUDE "audio/music/yellowunusedsong.asm"
 INCLUDE "audio/music/meetjessiejames.asm"
+
+
+SECTION "Pikachu PCM", ROMX
+
+INCLUDE "audio/pikachu_pcm.asm"
+INCLUDE "audio/pikachu_cries_pointers.asm"
 
 ; Pikachu cries are in different banks
 INCLUDE "audio/pikachu_cries.asm"

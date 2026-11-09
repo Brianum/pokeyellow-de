@@ -39,7 +39,7 @@ PewterGym_ScriptPointers:
 
 PewterGymBrockPostBattle:
 	ld a, [wIsInBattle]
-	cp $ff
+	cp LOST_BATTLE
 	jp z, PewterGymResetScripts
 	ld a, PAD_CTRL_PAD
 	ld [wJoyIgnore], a
@@ -189,9 +189,9 @@ PewterGymGuideText:
 	ld a, [wCurrentMenuItem]
 	and a
 	jr nz, .PewterGymGuideBeginAdviceText
-	ld a, [wd471]
-	bit 7, a
-	jp nz, .asm_5c3fa
+	ld a, [wPikachuSpawnStateFlags]
+	bit BIT_PIKACHU_SPAWN_STARTER, a
+	jp nz, .pikachuIsFollowing
 	ld hl, PewterGymGuideBeginAdviceText
 	call PrintText
 	jr .PewterGymGuideAdviceText
@@ -207,8 +207,8 @@ PewterGymGuideText:
 	call PrintText
 .done
 	jp TextScriptEnd
-.asm_5c3fa
-	ld hl, PewterGymText_5c41c
+.pikachuIsFollowing
+	ld hl, PewterGymGuyPikachuText
 	call PrintText
 	jp TextScriptEnd
 
@@ -232,6 +232,6 @@ PewterGymGuidePostBattleText:
 	text_far _PewterGymGuidePostBattleText
 	text_end
 
-PewterGymText_5c41c:
-	text_far _PewterGymGuyText
+PewterGymGuyPikachuText:
+	text_far _PewterGymGuyPikachuText
 	text_end

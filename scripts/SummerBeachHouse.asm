@@ -13,12 +13,12 @@ SummerBeachHouse_TextPointers:
 
 SummerBeachHouseSurfinDudeText:
 	text_asm
-	ld a, [wd471]
+	ld a, [wPikachuSpawnStateFlags]
 	vc_patch Bypass_need_Pikachu_with_Surf_for_minigame
 IF DEF (_YELLOW_VC)
-	bit 7, a
+	bit BIT_PIKACHU_SPAWN_STARTER, a
 ELSE
-	bit 6, a
+	bit BIT_PIKACHU_SPAWN_SURFING, a
 ENDC
 	vc_patch_end
 	jr nz, .next
@@ -26,9 +26,9 @@ ENDC
 	call PrintText
 	jr .done
 .next
-	ld hl, wd492
-	bit 0, [hl]
-	set 0, [hl]
+	ld hl, wPikachuMapScriptFlags
+	bit BIT_PIKACHU_MAP_PAUSE_IGT, [hl]
+	set BIT_PIKACHU_MAP_PAUSE_IGT, [hl]
 	jr nz, .next2
 	ld hl, .SurfinDudeText1
 	jr .next3
@@ -39,14 +39,14 @@ ENDC
 	call YesNoChoice
 	ld a, [wCurrentMenuItem]
 	and a
-	jr nz, .asm_f226b
+	jr nz, .refused
 	ld a, 1
 	ld [wDoNotWaitForButtonPressAfterDisplayingText], a
 	farcall SurfingPikachuMinigame
-	ld hl, wd492
-	set 1, [hl]
+	ld hl, wPikachuMapScriptFlags
+	set BIT_PIKACHU_MAP_SURF_SELECT, [hl]
 	jr .done
-.asm_f226b
+.refused
 	ld hl, .SurfinDudeText2
 	call PrintText
 .done
@@ -81,8 +81,8 @@ SummerBeachHousePikachuText:
 SummerBeachHousePoster1Text:
 	text_asm
 	ld hl, .SummerBeachHousePoster1Text2
-	ld a, [wd471]
-	bit 6, a
+	ld a, [wPikachuSpawnStateFlags]
+	bit BIT_PIKACHU_SPAWN_SURFING, a
 	jr z, .next
 	ld hl, .SummerBeachHousePoster1Text1
 .next
@@ -99,8 +99,8 @@ SummerBeachHousePoster1Text:
 SummerBeachHousePoster2Text:
 	text_asm
 	ld hl, .SummerBeachHousePoster2Text2
-	ld a, [wd471]
-	bit 6, a
+	ld a, [wPikachuSpawnStateFlags]
+	bit BIT_PIKACHU_SPAWN_SURFING, a
 	jr z, .next
 	ld hl, .SummerBeachHousePoster2Text1
 .next
@@ -117,8 +117,8 @@ SummerBeachHousePoster2Text:
 SummerBeachHousePoster3Text:
 	text_asm
 	ld hl, .SummerBeachHousePoster3Text2
-	ld a, [wd471]
-	bit 6, a
+	ld a, [wPikachuSpawnStateFlags]
+	bit BIT_PIKACHU_SPAWN_SURFING, a
 	jr z, .next
 	ld hl, .SummerBeachHousePoster3Text1
 .next
@@ -136,27 +136,27 @@ SummerBeachHousePrinterText:
 	text_asm
 	ld a, 1
 	ld [wDoNotWaitForButtonPressAfterDisplayingText], a
-	ld a, [wd471]
+	ld a, [wPikachuSpawnStateFlags]
 	vc_patch Bypass_need_Pikachu_with_Surf_for_high_score
 IF DEF(_YELLOW_VC)
-	bit 7, a
+	bit BIT_PIKACHU_SPAWN_STARTER, a
 ELSE
-	bit 6, a
+	bit BIT_PIKACHU_SPAWN_SURFING, a
 ENDC
 	vc_patch_end
-	jr z, .asm_f2369
+	jr z, .cannotPrint
 
-	ld hl, wd492
-	bit 1, [hl]
+	ld hl, wPikachuMapScriptFlags
+	bit BIT_PIKACHU_MAP_SURF_SELECT, [hl]
 	jr z, .next2
 	ld a, 0
 	ld [wDoNotWaitForButtonPressAfterDisplayingText], a
 .next2
 	ld hl, .SummerBeachHousePrinterText2
 	call PrintText
-	ld a, [wd492]
-	bit 1, a
-	jr z, .asm_f236f
+	ld a, [wPikachuMapScriptFlags]
+	bit BIT_PIKACHU_MAP_SURF_SELECT, a
+	jr z, .done
 
 	ld a, 1
 	ld [wDoNotWaitForButtonPressAfterDisplayingText], a
@@ -165,7 +165,7 @@ ENDC
 	call YesNoChoice
 	ld a, [wCurrentMenuItem]
 	and a
-	jp z, Func_f23d0
+	jp z, SummerBeachHousePrintHighScoreScript
 	call SaveScreenTilesToBuffer2
 	ld hl, wStatusFlags5
 	set BIT_NO_TEXT_DELAY, [hl]
@@ -183,11 +183,11 @@ ENDC
 	call GBPalNormal
 	ld a, 1
 	ld [wUpdateSpritesEnabled], a
-	jr .asm_f236f
-.asm_f2369
+	jr .done
+.cannotPrint
 	ld hl, .SummerBeachHousePrinterText1
 	call PrintText
-.asm_f236f
+.done
 	jp TextScriptEnd
 
 .SummerBeachHousePrinterText1

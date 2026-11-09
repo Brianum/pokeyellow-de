@@ -209,16 +209,16 @@ OaksLabChoseStarterScript:
 	ret
 
 .RivalPushesPlayerAwayFromEeveeBall
-	db $00
-	db $07
-	db $07
-	db $07
-	db $FF
+	db NPC_MOVEMENT_DOWN
+	db NPC_MOVEMENT_RIGHT_FAST
+	db NPC_MOVEMENT_RIGHT_FAST
+	db NPC_MOVEMENT_RIGHT_FAST
+	db -1 ; end
 
 OaksLabRivalTakesPokeballScript:
 	ld a, [wStatusFlags5]
 	bit BIT_SCRIPTED_NPC_MOVEMENT, a
-	jr nz, .asm_1c564
+	jr nz, .playerMovesAwayFromRival
 	ld a, TOGGLE_STARTER_BALL_1
 	ld [wToggleableObjectIndex], a
 	predef HideObject
@@ -242,7 +242,7 @@ OaksLabRivalTakesPokeballScript:
 	ld [wOaksLabCurScript], a
 	ret
 
-.asm_1c564
+.playerMovesAwayFromRival
 	ld a, [wYCoord]
 	cp 4
 	ret nz
@@ -262,20 +262,20 @@ OaksLabRivalTakesPokeballScript:
 OaksLabPlayerWalksToOakScript:
 	ld a, [wYCoord]
 	cp 4
-	jr z, .asm_1c599
+	jr z, .playerWalksToOak
 	ld a, $1
 	ld [wSimulatedJoypadStatesIndex], a
 	ld a, PAD_LEFT
 	ld [wSimulatedJoypadStatesEnd], a
-	jr .asm_1c5a6
+	jr .done
 
-.asm_1c599
+.playerWalksToOak
 	ld hl, wSimulatedJoypadStatesEnd
 	ld de, OaksLabRLE_PlayerWalksToOak
 	call DecodeRLEList
 	dec a
 	ld [wSimulatedJoypadStatesIndex], a
-.asm_1c5a6
+.done
 	call StartSimulatingJoypadStates
 	ld a, SCRIPT_OAKSLAB_PLAYER_RECEIVES_PIKACHU
 	ld [wOaksLabCurScript], a
@@ -286,7 +286,7 @@ OaksLabRLE_PlayerWalksToOak:
 	db PAD_LEFT, 3
 	db PAD_DOWN, 1
 	db PAD_LEFT, 1
-	db $FF
+	db -1 ; end
 
 OaksLabPlayerReceivesPikachuScript:
 	ld a, [wSimulatedJoypadStatesIndex]
@@ -428,11 +428,11 @@ OaksLabRivalStartsExitScript:
 .RivalExitMovement
 	db NPC_CHANGE_FACING
 	db NPC_MOVEMENT_DOWN
-	db $04
-	db $04
-	db $04
-	db $04
-	db $04
+	db NPC_MOVEMENT_DOWN_FAST
+	db NPC_MOVEMENT_DOWN_FAST
+	db NPC_MOVEMENT_DOWN_FAST
+	db NPC_MOVEMENT_DOWN_FAST
+	db NPC_MOVEMENT_DOWN_FAST
 	db -1 ; end
 
 OaksLabPlayerWatchRivalExitScript:
@@ -464,7 +464,7 @@ OaksLabPlayerWatchRivalExitScript:
 .turnPlayerDown
 	cp $4
 	ret nz
-	xor a ; ld a, SPRITE_FACING_DOWN
+	xor a ; SPRITE_FACING_DOWN
 .done
 	ld [wSpritePlayerStateData1FacingDirection], a
 	ret
@@ -473,7 +473,7 @@ OaksLabPikachuEscapesPokeballScript:
 ; Pikachu comes out
 	ld a, SPRITE_FACING_UP
 	ld [wSpritePlayerStateData1FacingDirection], a
-	ld a, $2
+	ld a, PIKACHU_SPAWN_OFFSET_FACING
 	ld [wPikachuSpawnState], a
 	farcall SchedulePikachuSpawnForAfterText
 	call EnablePikachuOverworldSpriteDrawing
@@ -825,6 +825,8 @@ OaksLabOak1Text:
 	ld b, POKE_BALL
 	call IsItemInBag
 	jr nz, .come_see_me_sometimes
+; This wPokedexOwned check is redundant, since the same check was performed
+; earlier to reach this .check_for_poke_balls block in the first place.
 	ld hl, wPokedexOwned
 	ld b, wPokedexOwnedEnd - wPokedexOwned
 	call CountSetBits
@@ -1016,7 +1018,7 @@ OaksLabRivalTakesText5:
 
 OaksLabPlayerReceivedMonText:
 	text_asm
-	ld a, STARTER_PIKACHU
+	ld a, STARTER
 	ld [wPlayerStarter], a
 	ld [wNamedObjectIndex], a
 	call GetMonName
@@ -1030,7 +1032,7 @@ OaksLabPlayerReceivedMonText:
 	ld [wMonDataLocation], a
 	ld a, 5
 	ld [wCurEnemyLevel], a
-	ld a, STARTER_PIKACHU
+	ld a, STARTER
 	ld [wPokedexNum], a
 	ld [wCurPartySpecies], a
 	call AddPartyMon

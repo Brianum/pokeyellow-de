@@ -93,9 +93,9 @@ OverworldLoopLessDelay::
 	and a
 	jp z, OverworldLoop ; jump if a hidden event or bookshelf was found, but not if a card key door was found
 	xor a
-	ld [wd435], a ; new yellow address
+	ld [wPlayerIsTalkingToPikachu], a
 	call IsSpriteOrSignInFrontOfPlayer
-	call Func_0ffe
+	call IsPlayerTalkingToPikachu
 	ldh a, [hTextID]
 	and a
 	jp z, OverworldLoop
@@ -228,7 +228,7 @@ OverworldLoopLessDelay::
 .noCollision
 	ld a, $08
 	ld [wWalkCounter], a
-	callfar Func_fcc08
+	callfar QueuePikachuFollowCommand
 	jr .moveAhead2
 
 .moveAhead
@@ -314,7 +314,7 @@ StepCountCheck::
 	ret
 
 AllPokemonFainted::
-	ld a, $ff
+	ld a, LOST_BATTLE
 	ld [wIsInBattle], a
 	call RunMapScript
 	jp HandleBlackOut
@@ -410,7 +410,7 @@ CheckWarpsNoCollisionRetry1::
 CheckWarpsNoCollisionRetry2::
 	inc hl
 	inc hl
-ContinueCheckWarpsNoCollisionLoop::
+
 	inc b ; increment warp number
 	dec c ; decrement number of warps
 	jp nz, CheckWarpsNoCollisionLoop
@@ -647,7 +647,7 @@ CheckMapConnections::
 .loadNewMap ; load the connected map that was entered
 	ld hl, wPikachuOverworldStateFlags
 	set 4, [hl]
-	ld a, $2
+	ld a, PIKACHU_SPAWN_OFFSET_FACING
 	ld [wPikachuSpawnState], a
 	call LoadMapHeader
 	call PlayDefaultMusicFadeOutCurrent
@@ -825,7 +825,7 @@ LoadPlayerSpriteGraphics::
 	dec a
 	jp z, LoadBikePlayerSpriteGraphics
 	dec a
-	jp z, LoadSurfingPlayerSpriteGraphics2
+	jp z, LoadSurfingPlayerSpriteGraphicsByState
 	jp LoadWalkingPlayerSpriteGraphics
 
 IsBikeRidingAllowed::
@@ -864,7 +864,7 @@ LoadTilesetTilePatternData::
 	ld a, [wTilesetGfxPtr + 1]
 	ld h, a
 	ld de, vTileset
-	ld bc, $600
+	ld bc, MAP_TILESET_SIZE tiles
 	ld a, [wTilesetBank]
 	jp FarCopyData
 
@@ -917,7 +917,7 @@ LoadTileBlockMap::
 .noCarry
 	dec b
 	jr nz, .rowLoop
-.northConnection
+; north connection
 	ld a, [wNorthConnectedMap]
 	cp $ff
 	jr z, .southConnection
@@ -1086,7 +1086,7 @@ IsSpriteInFrontOfPlayer::
 IsSpriteInFrontOfPlayer2::
 	lb bc, $3c, $40 ; Y and X position of player sprite
 	ld a, [wSpritePlayerStateData1FacingDirection]
-.checkIfPlayerFacingUp
+; check if player facing up
 	cp SPRITE_FACING_UP
 	jr nz, .checkIfPlayerFacingDown
 ; facing up
@@ -1168,8 +1168,8 @@ IsSpriteInFrontOfPlayer2::
 	ldh a, [hSpriteIndex] ; possible useless read because a already has the value of the read address
 	cp PIKACHU_SPRITE_INDEX
 	jr nz, .dontwritetowd436
-	ld a, $FF
-	ld [wd435], a
+	ld a, $FF ; true
+	ld [wPlayerIsTalkingToPikachu], a
 .dontwritetowd436
 	scf
 	ret
@@ -1399,7 +1399,7 @@ LoadCurrentMapView::
 	jr nz, .rowLoop
 	ld hl, wSurroundingTiles
 	ld bc, 0
-.adjustForYCoordWithinTileBlock
+; adjust for Y coord within tile block
 	ld a, [wYBlockCoord]
 	and a
 	jr z, .adjustForXCoordWithinTileBlock
@@ -1687,13 +1687,13 @@ CollisionCheckOnWater::
 .setCarry
 	scf
 	jr .done
-.checkIfVermilionDockTileset
+; check if Vermilion Dock tileset
 	ld a, [wCurMapTileset]
-	cp SHIP_PORT ; Vermilion Dock tileset
+	cp SHIP_PORT
 	jr nz, .noCollision ; keep surfing if it's not the boarding platform tile
 	jr .stopSurfing ; if it is the boarding platform tile, stop surfing
 .stopSurfing ; based game freak
-	ld a, $3
+	ld a, PIKACHU_SPAWN_DELAYED
 	ld [wPikachuSpawnState], a
 	ld hl, wPikachuOverworldStateFlags
 	set 5, [hl]
@@ -1708,7 +1708,6 @@ CollisionCheckOnWater::
 .done
 	ret
 
-; function to run the current map's script
 RunMapScript::
 	push hl
 	push de
@@ -1723,39 +1722,43 @@ RunMapScript::
 	pop de
 	pop hl
 	call RunNPCMovementScript
-	ld a, [wCurMap] ; current map number
-	call SwitchToMapRomBank ; change to the ROM bank the map's data is in
+	ld a, [wCurMap]
+	call SwitchToMapRomBank
 	ld hl, wCurMapScriptPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	ld de, .return
 	push de
-	jp hl ; jump to script
+	jp hl
 .return
 	ret
 
 LoadWalkingPlayerSpriteGraphics::
 ; new sprite copy stuff
 	xor a
-	ld [wd472], a
+	ld [wPlayerState], a
 	ld b, BANK(RedSprite)
 	ld de, RedSprite
 	jr LoadPlayerSpriteGraphicsCommon
 
-LoadSurfingPlayerSpriteGraphics2::
-	ld a, [wd472]
-	and a
-	jr z, .asm_0d75
-	dec a
+LoadSurfingPlayerSpriteGraphicsByState::
+	ld a, [wPlayerState]
+	ASSERT PLAYER_NORMAL == 0
+	and a ; PLAYER_NORMAL?
+	jr z, .normal
+	ASSERT PLAYER_SURF == 1
+	dec a ; PLAYER_SURF?
 	jr z, LoadSurfingPlayerSpriteGraphics
-	dec a
-	jr z, .asm_0d7c
-.asm_0d75
-	ld a, [wd471]
-	bit 6, a
+	ASSERT PLAYER_SURF_PIKA == 2
+	dec a ; PLAYER_SURF_PIKA?
+	jr z, LoadSurfingPikachuSpriteGraphics
+.normal
+	ld a, [wPikachuSpawnStateFlags]
+	bit BIT_PIKACHU_SPAWN_SURFING, a
 	jr z, LoadSurfingPlayerSpriteGraphics
-.asm_0d7c
+	; fallthrough
+LoadSurfingPikachuSpriteGraphics::
 	ld b, BANK(SurfingPikachuSprite)
 	ld de, SurfingPikachuSprite
 	jr LoadPlayerSpriteGraphicsCommon
@@ -1768,7 +1771,7 @@ LoadSurfingPlayerSpriteGraphics::
 LoadBikePlayerSpriteGraphics::
 	ld b, BANK(RedBikeSprite)
 	ld de, RedBikeSprite
-
+	; fallthrough
 LoadPlayerSpriteGraphicsCommon::
 	ld hl, vNPCSprites
 	push de
@@ -1792,11 +1795,11 @@ LoadPlayerSpriteGraphicsCommon::
 ; function to load data from the map header
 LoadMapHeader::
 	farcall MarkTownVisitedAndLoadToggleableObjects
-	jr asm_0dbd
+	jr _ContinueLoadMapHeader
 
-Func_0db5:: ; unreferenced
+LoadUnvisitedMapHeader:: ; unreferenced
 	farcall LoadToggleableObjectData
-asm_0dbd:
+_ContinueLoadMapHeader:
 	ld a, [wCurMapTileset]
 	ld [wUnusedCurMapTilesetCopy], a
 	ld a, [wCurMap]
@@ -2128,8 +2131,8 @@ IsSpinning::
 	ret z ; no spinning
 	farjp LoadSpinnerArrowTiles ; spin while moving
 
-Func_0ffe::
-	jpfar IsPlayerTalkingToPikachu
+IsPlayerTalkingToPikachu::
+	jpfar _IsPlayerTalkingToPikachu
 
 InitSprites::
 	ld a, [hli]

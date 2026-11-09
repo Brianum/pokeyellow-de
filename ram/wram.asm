@@ -73,7 +73,8 @@ wAudioSavedROMBank:: db
 wFrequencyModifier:: db
 wTempoModifier:: db
 
-wc0f3:: dw
+; regularly set to $0, but nothing ever reads it
+wUnusedAudioCounter:: dw
 
 	ds 11
 
@@ -220,28 +221,27 @@ wAnimatedObjectsDataEnd::
 ; Surfing minigame
 wSurfingMinigameData:: db
 wSurfingMinigameRoutineNumber:: db
-wc5d2:: db
+wSurfingMinigamePikachuState:: db
 wSurfingMinigameWaveFunctionNumber:: dw
-wc5d5:: db
+wSurfingMinigameWaveRandomValue:: db
 wSurfingMinigamePikachuHP:: dw ; little-endian BCD
-wc5d8:: db ; unused?
-; number of consecutive tricks
-wSurfingMinigameRadnessMeter:: db
+	ds 1
+wSurfingMinigameRadnessMeter:: db ; number of consecutive tricks
 wSurfingMinigameRadnessScore:: dw ; little-endian BCD
 wSurfingMinigameTotalScore:: dw ; little-endian BCD
-wc5de:: db
-wc5df:: db
-wc5e0:: db
-wc5e1:: db
-wc5e2:: db
+wSurfingMinigameBoardAngleOffset:: db
+wSurfingMinigameBoardAngleDecreasing:: db
+wSurfingMinigameBoardAngleTimer:: db
+wSurfingMinigameCrashTimer:: db
+wSurfingMinigameUnusedToggle:: db ; only used in unused function
 wSurfingMinigamePikachuSpeed:: dw ; little-endian
-wc5e5:: ds 3 ; big-endian
+wSurfingMinigameDistance:: ds 3 ; big-endian
 wSurfingMinigameWaveHeightBuffer:: dw
 wSurfingMinigamePikachuObjectHeight:: db
-wc5eb:: db
-wc5ec:: db
-wc5ed:: db
-wc5ee:: db
+wSurfingMinigameWaterSprayCounter:: db
+wSurfingMinigameJumpArcMagnitude:: db
+wSurfingMinigameJumpDescending:: db
+wSurfingMinigameJumpArcFraction:: db
 wSurfingMinigameBGMapReadBuffer:: ds 1 tiles
 	ds 24
 wSurfingMinigameSCX:: db
@@ -250,16 +250,16 @@ wSurfingMinigameSCXHi:: db
 wSurfingMinigameWaveHeight:: ds SCREEN_WIDTH
 wSurfingMinigameXOffset:: db
 wSurfingMinigameTrickFlags:: db
-wc630:: db
-wc631:: db
+wSurfingMinigameGameOver:: db
+wSurfingMinigameGameOverDelay:: db
 wSurfingMinigameRoutineDelay:: db
 wSurfingMinigameIntroAnimationFinished:: db
 
-; Yellow intro
-wYellowIntroCurrentScene::
-wc634:: db
-wYellowIntroSceneTimer::
-wc635:: db
+; Shared with the Yellow intro
+wSurfingMinigameMusicTempoEnabled::
+wYellowIntroCurrentScene:: db
+wSurfingMinigameCloudScrollFraction::
+wYellowIntroSceneTimer:: db
 wYellowIntroAnimatedObjectStructPointer:: db
 wSurfingMinigameDataEnd::
 ENDU
@@ -267,6 +267,7 @@ ENDU
 
 SECTION "Overworld Map", WRAM0
 
+; This union spans 1300 bytes.
 UNION
 wOverworldMap:: ds 1300
 wOverworldMapEnd::
@@ -280,11 +281,7 @@ wPrinterSendState:: db
 wPrinterRowIndex:: db
 
 ; Printer data header
-wPrinterDataHeader::
-wc6ea:: db
-wc6eb:: db
-wc6ec:: db
-wc6ed:: db
+wPrinterDataHeader:: ds 4
 wPrinterChecksum:: dw
 
 UNION
@@ -295,17 +292,18 @@ wPrinterSerialReceived:: db
 ; if this and the previous byte are both $ff: error 2 (connection error)
 wPrinterStatusReceived:: db
 
-wc6f2:: db
-wc6f3:: db
-	ds 12
+	ds 14
+
 wLYOverrides:: ds $100
 wLYOverridesEnd::
 wLYOverridesBuffer:: ds $100
 wLYOverridesBufferEnd::
 
 NEXTU
+wPrinterSendDataSources::
 wPrinterSendDataSource1:: ds 20 tiles
 wPrinterSendDataSource2:: ds 20 tiles
+wPrinterSendDataSourcesEnd::
 ENDU
 
 wPrinterSendDataSource1End::
@@ -318,7 +316,7 @@ wPrinterSendByteOffset:: dw
 wPrinterDataSize:: dw
 wPrinterTileBuffer:: ds SCREEN_AREA
 wPrinterStatusIndicator:: dw
-wcae2:: db
+wPrinterMargins:: db
 wPrinterSettingsTempCopy:: db
 	ds 16
 wPrinterQueueLength:: db
@@ -328,20 +326,18 @@ wPrinterPokedexEntryTextPointer:: dw
 	ds 2
 wPrinterPokedexMonIsOwned:: db
 	ds 226
-UNION
-wcbdc:: ds 1 tiles
-NEXTU
-	ds 14
-wcbea:: dw
-ENDU
-wcbec:: ds 1 tiles
+wPrinterObjectBuffer:: ds 2 tiles
 ENDU
 
 
 SECTION "WRAM", WRAM0
 
+UNION
 ; the tiles of the row or column to be redrawn by RedrawRowOrColumn
 wRedrawRowOrColumnSrcTiles:: ds SCREEN_WIDTH * 2
+NEXTU
+wSavedAudioWavePattern:: ds AUD3WAVE_SIZE
+ENDU
 
 ; coordinates of the position of the cursor for the top menu item (id 0)
 wTopMenuItemY:: db
@@ -420,6 +416,7 @@ wTextDest:: dw
 ; if non-zero, skip waiting for a button press after displaying text in DisplayTextID
 wDoNotWaitForButtonPressAfterDisplayingText:: db
 
+; This union spans 12 bytes.
 UNION
 ; the received menu selection is stored twice
 wLinkMenuSelectionReceiveBuffer:: dw
@@ -441,7 +438,7 @@ wSerialExchangeNybbleReceiveData:: db
 ; this nybble is sent when using Serial_SyncAndExchangeNybble or Serial_ExchangeNybble
 wSerialExchangeNybbleSendData:: db
 	ds 4
-wUnknownSerialCounter:: dw
+wLinkTimeoutFrames:: dw
 ENDU
 
 ; $00 = player mons
@@ -589,7 +586,7 @@ wAILayer2Encouragement:: db
 wPlayerSubstituteHP:: db
 wEnemySubstituteHP:: db
 
-; used for TestBattle (unused in non-debug builds)
+; used for FightDebugMenu (unused in non-debug builds)
 wTestBattlePlayerSelectedMove:: db
 
 	ds 1
@@ -1007,7 +1004,7 @@ wPPRestoreItem::
 wWereAnyMonsAsleep::
 wNumShakes::
 wWhichBadge::
-wTitleMonSpecies::
+wUnusedTitleMonSpecies::
 wPlayerCharacterOAMTile::
 ; the number of small stars OAM entries to move down
 wMoveDownSmallStarsOAMCount::
@@ -1024,6 +1021,8 @@ wOptionsCursorLocation::
 NEXTU
 wTitleScreenScene:: db
 wTitleScreenTimer:: db
+wTitleScreenResetCounter:: dw
+wTitleScreenPikachuCry:: db
 ENDU
 
 ; 0 = neither
@@ -1096,12 +1095,13 @@ wStatusScreenCurrentPP:: db
 wNormalMaxPPList:: ds NUM_MOVES
 ENDU
 
+; This union spans 360 bytes.
 UNION
-; buffer for transferring the random number list generated by the other gameboy
-wSerialOtherGameboyRandomNumberListBlock:: ds $11
-NEXTU
 ; second buffer for temporarily saving and restoring current screen's tiles (e.g. if menus are drawn on top)
 wTileMapBackup2:: ds SCREEN_AREA
+NEXTU
+; buffer for transferring the random number list generated by the other gameboy
+wSerialOtherGameboyRandomNumberListBlock:: ds $11
 ENDU
 
 ; This union spans 30 bytes.
@@ -1218,7 +1218,6 @@ wDefaultPaletteCommand:: db
 
 UNION
 wPlayerHPBarColor:: db
-
 NEXTU
 ; species of the mon whose palette is used for the whole screen
 wWholeScreenPaletteMonSpecies:: db
@@ -1379,7 +1378,6 @@ wEnemyMonBaseExp:: db
 wBattleMonNick:: ds NAME_LENGTH
 wBattleMon:: battle_struct wBattleMon
 
-
 wTrainerClass:: db
 
 	ds 1
@@ -1390,7 +1388,6 @@ wTrainerPicPointer:: dw
 
 UNION
 wTempMoveNameBuffer:: ds MOVE_NAME_LENGTH
-
 NEXTU
 ; The name of the mon that is learning a move.
 wLearnMoveMonName:: ds NAME_LENGTH
@@ -1460,6 +1457,7 @@ wPlayerStatsToHalve:: db
 wPlayerBattleStatus1:: db
 wPlayerBattleStatus2:: db
 wPlayerBattleStatus3:: db
+wPlayerBattleStatusEnd::
 
 ; always 0
 wEnemyStatsToDouble:: db
@@ -1469,6 +1467,7 @@ wEnemyStatsToHalve:: db
 wEnemyBattleStatus1:: db
 wEnemyBattleStatus2:: db
 wEnemyBattleStatus3:: db
+wEnemyBattleStatusEnd::
 
 ; when the player is attacking multiple times, the number of attacks left
 wPlayerNumAttacksLeft:: db
@@ -1499,13 +1498,11 @@ wEnemyDisabledMove:: db
 UNION
 ; the amount of damage accumulated by the player while biding
 wPlayerBideAccumulatedDamage:: dw
-
-NEXTU
-wUnknownSerialCounter2:: dw
-
 NEXTU
 ; number of hits by player in attacks like Double Slap, etc.
 wPlayerNumHits:: db
+NEXTU
+wLinkByteTimeout:: dw
 ENDU
 
 	ds 2
@@ -1516,7 +1513,6 @@ wEscapedFromBattle:: db
 
 UNION
 wAmountMoneyWon:: ds 3 ; BCD
-
 NEXTU
 wObjectToHide:: db
 wObjectToShow:: db
@@ -1564,6 +1560,7 @@ wSaveFileStatus:: db
 ; number of tiles in current battle animation frame block
 wNumFBTiles:: db
 
+; This union spans 2 bytes.
 UNION
 wSpiralBallsBaseY:: db
 wSpiralBallsBaseX:: db
@@ -1611,7 +1608,6 @@ wSubAnimAddrPtr:: dw
 UNION
 ; the address of the current subentry of the current subanimation
 wSubAnimSubEntryAddr:: dw
-
 NEXTU
 ; If non-zero, the allow matches flag is always set.
 ; There is a 1/256 (~0.4%) chance that this value will be set to 60, which is
@@ -1861,6 +1857,7 @@ wPrize3:: db
 
 	ds 1
 
+; This union spans 17 bytes.
 UNION
 wSerialRandomNumberListBlock:: ds $11
 
@@ -2010,13 +2007,14 @@ wWarpEntries:: ds MAX_WARP_EVENTS * 4 ; Y, X, warp ID, map ID
 ; if $ff, the player's coordinates are not updated when entering the map
 wDestinationWarpID:: db
 
+wYellowVersionMemory::
 wPikachuOverworldStateFlags:: db
 wPikachuSpawnState:: db
-wd431:: db
-wd432:: db
-wd433:: db
+wPikachuSpriteStateYPixelOffset:: db
+wPikachuSpriteStateXPixelOffset:: db
+wPikachuCollisionUnusedDelta:: db ; this variable is written to, but is never read from
 wPikachuCollisionCounter:: db
-wd435:: db
+wPlayerIsTalkingToPikachu:: db
 wPikachuFollowCommandBufferSize:: db
 wPikachuFollowCommandBuffer:: ds 16
 
@@ -2035,7 +2033,7 @@ wCurPikaMovementParam1:: db
 wCurPikaMovementFunc1:: db
 wCurPikaMovementParam2:: db
 wCurPikaMovementFunc2:: db
-wd451:: db
+wCurPikaMovementUnusedByte:: db
 wCurPikaMovementSpriteImageIdx:: db
 wPikaSpriteX:: db
 wPikaSpriteY:: db
@@ -2070,24 +2068,25 @@ ENDU
 
 wPikachuHappiness:: db
 wPikachuMood:: db
-wd471:: db
-wd472:: db
+wPikachuSpawnStateFlags:: db
+wPlayerState:: db
 	ds 1
-wd474:: db
+wCinnabarGymQuizWrongAnswer:: db
 	ds 4
-wd479:: db
+wReachedMaxInGameTime:: db
 	ds 24
-wd492:: db
+wPikachuMapScriptFlags:: db
 	ds 1
 wSurfingMinigameHiScore:: dw ; little-endian BCD
 	ds 1
 wPrinterSettings:: db
-wUnknownSerialFlag_d499:: db
+wChosenColosseum2Cup:: db
 wPrinterConnectionOpen:: db
 wPrinterOpcode:: db
-wd49b:: db
+wPikachuEmotionModifier:: db
+wYellowVersionMemoryEnd::
 
-	ds 19
+	ds 128 - (wYellowVersionMemoryEnd - wYellowVersionMemory)
 
 ; number of signs in the current map (up to MAX_BG_EVENTS)
 wNumSigns:: db
@@ -2401,7 +2400,7 @@ wSecondLockTrashCanIndex:: db
 
 wEventFlags:: flag_array NUM_EVENTS
 
-
+; This union spans 293 bytes.
 UNION
 wGrassRate:: db
 wGrassMons:: ds WILDDATA_LENGTH - 1
@@ -2430,6 +2429,8 @@ FOR n, 1, PARTY_LENGTH + 1
 wEnemyMon{d:n}:: party_struct wEnemyMon{d:n}
 ENDR
 
+ENDU
+
 wEnemyMonOT::
 ; wEnemyMon1OT - wEnemyMon6OT
 FOR n, 1, PARTY_LENGTH + 1
@@ -2441,9 +2442,6 @@ wEnemyMonNicks::
 FOR n, 1, PARTY_LENGTH + 1
 wEnemyMon{d:n}Nick:: ds NAME_LENGTH
 ENDR
-
-ENDU
-
 
 wTrainerHeaderPtr:: dw
 
@@ -2468,7 +2466,6 @@ wPlayTimeFrames:: db
 wSafariZoneGameOver:: db
 
 wNumSafariBalls:: db
-
 
 ; 0 if no pokemon is in the daycare
 ; 1 if pokemon is in the daycare
@@ -2518,7 +2515,7 @@ wCGBPal:: ds PAL_SIZE
 wLastBGP:: db
 wLastOBP0:: db
 wLastOBP1:: db
-wdef4:: db
+wBattleObjPalID:: db
 wBGPPalsBuffer:: ds NUM_ACTIVE_PALS * PAL_SIZE
 
 

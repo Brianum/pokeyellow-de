@@ -6,7 +6,7 @@ ENDM
 
 TradeMons:
 ; entries correspond to TRADE_FOR_* constants
-	table_width 3 + NAME_LENGTH
+	table_width TRADE_DATA_SIZE
 	; The two instances of TRADE_DIALOGSET_EVOLUTION are a leftover
 	; from the Japanese Blue trades, which used species that evolve.
 	; TRADE_DIALOGSET_EVOLUTION did not refer to evolution in Japanese
@@ -15,14 +15,14 @@ TradeMons:
 	; Red/Blue uses the original JP Red/Green trades but with the JP Blue
 	; post-trade text. English Yellow changed _AfterTrade2Text to
 	; not mention evolution.
-	npctrade LICKITUNG,  DUGTRIO,  TRADE_DIALOGSET_CASUAL,    "BODO"
-	npctrade CLEFAIRY,   MR_MIME,  TRADE_DIALOGSET_CASUAL,    "MICKY"
-	npctrade BUTTERFREE, BEEDRILL, TRADE_DIALOGSET_HAPPY,     "SPIKY" ; unused
-	npctrade KANGASKHAN, MUK,      TRADE_DIALOGSET_CASUAL,    "STINKER"
+	npctrade LICKITUNG,  DUGTRIO,  TRADE_DIALOGSET_CASUAL,    "BODO"    ; used in ROUTE_11_GATE_2F
+	npctrade CLEFAIRY,   MR_MIME,  TRADE_DIALOGSET_CASUAL,    "MICKY"   ; used in ROUTE_2_TRADE_HOUSE
+	npctrade BUTTERFREE, BEEDRILL, TRADE_DIALOGSET_HAPPY,     "SPIKY"   ; unused
+	npctrade KANGASKHAN, MUK,      TRADE_DIALOGSET_CASUAL,    "STINKER" ; used in CINNABAR_LAB_FOSSIL_ROOM
 	npctrade MEW,        MEW,      TRADE_DIALOGSET_HAPPY,     "BART"    ; unused
-	npctrade TANGELA,    PARASECT, TRADE_DIALOGSET_CASUAL,    "SEPP"
+	npctrade TANGELA,    PARASECT, TRADE_DIALOGSET_CASUAL,    "SEPP"    ; used in ROUTE_18_GATE_2F
 	npctrade PIDGEOT,    PIDGEOT,  TRADE_DIALOGSET_EVOLUTION, "MARTY"   ; unused
-	npctrade GOLDUCK,    RHYDON,   TRADE_DIALOGSET_EVOLUTION, "DICKIE"
-	npctrade GROWLITHE,  DEWGONG,  TRADE_DIALOGSET_HAPPY,     "ROBBIE"
-	npctrade CUBONE,     MACHOKE,  TRADE_DIALOGSET_HAPPY,     "PROLO"
+	npctrade GOLDUCK,    RHYDON,   TRADE_DIALOGSET_EVOLUTION, "DICKIE"  ; used in CINNABAR_LAB_TRADE_ROOM
+	npctrade GROWLITHE,  DEWGONG,  TRADE_DIALOGSET_HAPPY,     "ROBBIE"  ; used in CINNABAR_LAB_TRADE_ROOM
+	npctrade CUBONE,     MACHOKE,  TRADE_DIALOGSET_HAPPY,     "PROLO"   ; used in UNDERGROUND_PATH_ROUTE_5
 	assert_table_length NUM_NPC_TRADES

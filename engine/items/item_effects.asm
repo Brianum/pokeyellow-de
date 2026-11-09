@@ -562,7 +562,7 @@ ItemUseBall:
 
 .skipShowingPokedexData
 	ld a, $1
-	ld [wd49b], a
+	ld [wPikachuEmotionModifier], a
 	ld a, $85
 	ld [wPikachuMood], a
 	ld a, [wPartyCount]
@@ -673,7 +673,7 @@ ItemUseBicycle:
 	call ItemUseReloadOverworldData
 	xor a
 	ld [wWalkBikeSurfState], a ; change player state to walking
-	ld a, $00
+	ld a, PIKACHU_SPAWN_DEFAULT
 	ld [wPikachuSpawnState], a
 	call PlayDefaultMusic ; play walking music
 	ld hl, GotOffBicycleText
@@ -740,7 +740,7 @@ ItemUseSurfboard:
 
 .stopSurfing
 	call .makePlayerMoveForward
-	ld a, $3
+	ld a, PIKACHU_SPAWN_DELAYED
 	ld [wPikachuSpawnState], a
 	ld hl, wPikachuOverworldStateFlags
 	set 5, [hl]
@@ -807,7 +807,7 @@ ItemUseEvoStone:
 	jr c, .canceledItemUse
 	ld a, b
 	ld [wCurPartySpecies], a
-	call Func_d85d
+	call CheckEvolveWithUsedStone
 	jr nc, .noEffect
 	callfar IsThisPartyMonStarterPikachu
 	jr nc, .notPlayerPikachu
@@ -819,7 +819,7 @@ ItemUseEvoStone:
 	ld hl, RefusingText
 	call PrintText
 	ld a, $4
-	ld [wd49b], a
+	ld [wPikachuEmotionModifier], a
 	ld a, $82
 	ld [wPikachuMood], a
 	jr .canceledItemUse
@@ -846,7 +846,7 @@ ItemUseEvoStone:
 	pop af
 	ret
 
-Func_d85d:
+CheckEvolveWithUsedStone:
 	ld hl, EvosMovesPointerTable
 	ld a, [wLoadedMon]
 	dec a
@@ -855,16 +855,16 @@ Func_d85d:
 	add hl, bc
 	add hl, bc
 	ld de, wEvoDataBuffer
-	ld a, BANK(TryEvolvingMon)
-	ld bc, $2
+	ld a, BANK(EvosMovesPointerTable)
+	ld bc, 2
 	call FarCopyData
 	ld hl, wEvoDataBuffer
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	ld de, wEvoDataBuffer
-	ld a, BANK(TryEvolvingMon)
-	ld bc, 13
+	ld a, BANK(EvosMovesPointerTable)
+	ld bc, wEvoDataBufferEnd - wEvoDataBuffer
 	call FarCopyData
 	ld hl, wEvoDataBuffer
 .loop
@@ -903,7 +903,7 @@ ItemUseVitamin:
 ItemUseMedicine:
 	ld a, [wPartyCount]
 	and a
-	jp z, Func_e4bf
+	jp z, ItemUseDontHavePokemon
 	ld a, [wWhichPokemon]
 	push af
 	ld a, [wCurItem]
@@ -1650,7 +1650,7 @@ ItemUseEscapeRope:
 	ld hl, wStatusFlags6
 	set BIT_FLY_WARP, [hl]
 	set BIT_ESCAPE_WARP, [hl]
-	call Func_1510
+	call EnableHidePikachuWhileLeavingMap
 	ld hl, wStatusFlags4
 	res BIT_NO_BATTLES, [hl]
 	ResetEvent EVENT_IN_SAFARI_ZONE
@@ -1889,7 +1889,7 @@ ItemUsePokeFlute:
 	ld hl, PlayedFluteHadEffectText
 	call PrintText
 	call ItemUseReloadOverworldData
-	ldpikaemotion e, PikachuEmotion26
+	ldpikaemotion e, PikachuEmotionWakeUp
 	callfar PlaySpecificPikachuEmotion
 	ret
 
@@ -1921,10 +1921,10 @@ ItemUsePokeFlute:
 	ld [hl], a
 	ld a, c
 	and SLP_MASK
-	jr z, .asm_e063
+	jr z, .noMonsAsleep
 	ld a, $1
 	ld [wWereAnyMonsAsleep], a
-.asm_e063
+.noMonsAsleep
 	call LoadScreenTilesFromBuffer2 ; restore saved screen
 	ld a, [wWereAnyMonsAsleep]
 	and a ; were any pokemon asleep before playing the flute?
@@ -2124,7 +2124,7 @@ FishingInit:
 	ld a, SFX_HEAL_AILMENT
 	call PlaySound
 	ld a, $2
-	ld [wd49b], a
+	ld [wPikachuEmotionModifier], a
 	ld a, $81
 	ld [wPikachuMood], a
 	ld c, 80
@@ -2507,7 +2507,7 @@ ItemUseTMHM:
 	jr nz, .notTeachingThunderboltOrThunderToPikachu
 .teachingThunderboltOrThunderToPlayerPikachu
 	ld a, $5
-	ld [wd49b], a
+	ld [wPikachuEmotionModifier], a
 	ld a, $85
 	ld [wPikachuMood], a
 .notTeachingThunderboltOrThunderToPikachu
@@ -2560,7 +2560,7 @@ ItemUseNotYoursToUse:
 	ld hl, ItemUseNotYoursToUseText
 	jr ItemUseFailed
 
-Func_e4bf:
+ItemUseDontHavePokemon:
 	ld a, $2
 	ld [wActionResultOrTookBattleTurn], a
 	ld hl, DontHavePokemonText
@@ -3114,7 +3114,7 @@ SendNewMonToBox:
 
 ; checks if the tile in front of the player is a shore or water tile
 ; used for surfing and fishing
-; unsets carry if it is, sets carry if not
+; sets carry if it is, unsets carry if not
 IsNextTileShoreOrWater::
 	ld a, [wCurMapTileset]
 	ld hl, WaterTilesets
@@ -3124,15 +3124,15 @@ IsNextTileShoreOrWater::
 	ld hl, WaterTile
 	ld a, [wCurMapTileset]
 	cp SHIP_PORT ; Vermilion Dock tileset
-	jr z, .skipShoreTiles ; if it's the Vermilion Dock tileset
-	cp GYM ; eastern shore tile in Safari Zone
 	jr z, .skipShoreTiles
-	cp DOJO ; usual eastern shore tile
+	cp GYM
+	jr z, .skipShoreTiles
+	cp DOJO
 	jr z, .skipShoreTiles
 	ld hl, ShoreTiles
 .skipShoreTiles
 	ld a, [wTileInFrontOfPlayer]
-	ld de, $1
+	ld de, 1
 	call IsInArray
 	ret
 

@@ -36,13 +36,13 @@ _Museum2FBrunetteGirlText::
 	line "mir eines fangen!"
 	done
 
-_Museum2FHikerText::
+_Museum2FHikerText1::
 	text "Ja, ein PIKACHU!"
 	line "Ich verspreche,"
 	cont "ich fange eins!"
 	done
 
-_Museum2FPikachuText1::
+_Museum2FHikerText2::
 	text "Dein PIKACHU"
 	line "sieht noch wild"
 	cont "aus! Gibst Du es"
@@ -50,7 +50,7 @@ _Museum2FPikachuText1::
 	cont "Tochter?"
 	done
 
-_Museum2FPikachuText2::
+_Museum2FHikerText3::
 	text "Ich würde Dein"
 	line "PIKACHU gerne"
 	cont "nehmen, aber es"

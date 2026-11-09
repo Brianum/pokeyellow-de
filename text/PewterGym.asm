@@ -209,7 +209,7 @@ _PewterGymGuidePostBattleText::
 	cont "werden!"
 	done
 
-_PewterGymGuyText::
+_PewterGymGuyPikachuText::
 	text "Alles klar! Laß"
 	line "uns beginnen!"
 

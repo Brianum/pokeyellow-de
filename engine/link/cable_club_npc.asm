@@ -2,11 +2,11 @@ CableClubNPC::
 	ld hl, CableClubNPCWelcomeText
 	call PrintText
 	call CheckPikachuFollowingPlayer
-	jr nz, .asm_7048
+	jr nz, .pikachuIsAsleep
 	CheckEvent EVENT_GOT_POKEDEX
 	jp nz, .receivedPokedex
 ; if the player hasn't received the pokedex
-.asm_7048
+.pikachuIsAsleep
 	ld c, 60
 	call DelayFrames
 	ld hl, CableClubNPCMakingPreparationsText
@@ -73,7 +73,7 @@ CableClubNPC::
 	call PlaySoundWaitForCurrent
 	ld hl, CableClubNPCPleaseWaitText
 	call PrintText
-	ld hl, wUnknownSerialCounter
+	ld hl, wLinkTimeoutFrames
 	ld a, $3
 	ld [hli], a
 	xor a
@@ -83,7 +83,7 @@ CableClubNPC::
 	vc_hook Wireless_prompt
 	call Serial_SyncAndExchangeNybble
 	vc_hook Wireless_net_recheck
-	ld hl, wUnknownSerialCounter
+	ld hl, wLinkTimeoutFrames
 	ld a, [hli]
 	inc a
 	jr nz, .connected
@@ -110,7 +110,7 @@ CableClubNPC::
 	call PrintText
 .didNotConnect
 	xor a
-	ld hl, wUnknownSerialCounter
+	ld hl, wLinkTimeoutFrames
 	ld [hli], a
 	ld [hl], a
 	ld hl, wStatusFlags4
@@ -137,14 +137,14 @@ Serial_SyncAndExchangeNybbleDouble:
 	call Serial_ExchangeNybble
 	call DelayFrame
 	push hl
-	ld hl, wUnknownSerialCounter + 1
+	ld hl, wLinkTimeoutFrames + 1
 	dec [hl]
 	jr nz, .next
 	dec hl
 	dec [hl]
 	jr nz, .next
 	pop hl
-	jr .setUnknownSerialCounterToFFFF
+	jr .serialDisconnected
 .next
 	pop hl
 	ld a, [wSerialExchangeNybbleReceiveData]
@@ -172,10 +172,10 @@ Serial_SyncAndExchangeNybbleDouble:
 	ld a, [wSerialExchangeNybbleReceiveData]
 	ld [wSerialSyncAndExchangeNybbleReceiveData], a
 	ret
-.setUnknownSerialCounterToFFFF
+.serialDisconnected
 	ld a, $ff
-	ld [wUnknownSerialCounter], a
-	ld [wUnknownSerialCounter + 1], a
+	ld [wLinkTimeoutFrames], a
+	ld [wLinkTimeoutFrames + 1], a
 	ret
 
 CableClubNPCAreaReservedFor2FriendsLinkedByCableText:

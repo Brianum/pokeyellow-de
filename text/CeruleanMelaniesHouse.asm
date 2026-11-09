@@ -1,4 +1,4 @@
-MelanieText1::
+_MelanieText1::
 	text "Ich kümmere mich"
 	line "um verletzte"
 	cont "#MON."
@@ -12,36 +12,36 @@ MelanieText1::
 	cont "der für es sorgt.@"
 	text_end
 
-MelanieText2::
+_MelanieText2::
 	text "Würdest Du Dich"
 	line "um dieses BISASAM"
 	cont "kümmern?"
 	done
 
-MelanieText3::
+_MelanieText3::
 	text "Kümmere Dich"
 	line "gut um BISASAM!@"
 	text_end
 
-MelanieText4::
+_MelanieText4::
 	text "Wie macht BISASAM"
 	line "sich?@"
 	text_end
 
-MelanieText5::
+_MelanieText5::
 	text "Oh..."
 	line "Das ist schade...@"
 	text_end
 
-MelanieBulbasaurText::
+_CeruleanMelaniesHouseBulbasaurText::
 	text "BISASAM: Bisa!"
 	line "Bisasam!@"
 	text_end
 
-MelanieOddishText::
+_CeruleanMelaniesHouseOddishText::
 	text "MYRAPLA: Myraaa!@"
 	text_end
 
-MelanieSandshrewText::
+_CeruleanMelaniesHouseSandshrewText::
 	text "SANDAN: Pikii!@"
 	text_end

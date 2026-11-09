@@ -86,7 +86,7 @@ _SilphCo11FGiovanniText::
 	cont "Schmerzen kennen!"
 	done
 
-_SilphCo10FGiovanniILostAgainText::
+_SilphCo11FGiovanniILostAgainText::
 	text "Arrgh!"
 	line "Wieder verloren!"
 	prompt
